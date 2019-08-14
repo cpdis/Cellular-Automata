@@ -5,16 +5,20 @@ import random
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (25, 25, 25)
+RED = (255, 0, 0)
 WIN_SIZE = 500
 CELL_SIZE = 20
 # Window height and width must be a multiple of the cell size
 assert WIN_SIZE % CELL_SIZE == 0
 
-# def blank():
-#     grid = {}
-#     for y in range (CELL_SIZE):
-#         for x in range(CELL_SIZE):
-#             grid[x, y] = 0
+
+def blank_grid():
+    grid_dict = {}
+    for y in range(CELL_SIZE):
+        for x in range(CELL_SIZE):
+            grid_dict[x, y] = 0
+
+    return grid_dict
 
 
 def grid():
@@ -22,6 +26,26 @@ def grid():
         pygame.draw.line(screen, GRAY, (x, 0), (x, WIN_SIZE))
     for y in range(0, WIN_SIZE, CELL_SIZE):  # draw horizontal lines
         pygame.draw.line(screen, GRAY, (0, y), (WIN_SIZE, y))
+
+
+def random_grid(dict):
+    for item in dict:
+        dict[item] = random.randint(0, 1)
+    return dict
+
+
+def color(item, dict):
+    x = item[0]
+    x = x * CELL_SIZE
+    y = item[1]
+    y = y * CELL_SIZE
+
+    if dict[item] == 0:
+        pygame.draw.rect(screen, WHITE, (x, y, CELL_SIZE, CELL_SIZE))
+    if dict[item] == 1:
+        pygame.draw.rect(screen, RED, (x, y, CELL_SIZE, CELL_SIZE))
+
+    return None
 
 
 def main():
@@ -62,6 +86,16 @@ def main():
         # Here, we clear the screen to gray. Don't put other drawing commands
         # above this, or they will be erased with this command.
         screen.fill(WHITE)
+
+        # Create a blank grid
+        game_of_life = blank_grid()
+
+        # Create random life in cells
+        game_of_life = random_grid(game_of_life)
+
+        # Color the life cells
+        for item in game_of_life:
+            color(item, game_of_life)
 
         # Draw the grid
         grid()
