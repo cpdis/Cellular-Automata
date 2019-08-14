@@ -6,12 +6,12 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (25, 25, 25)
 WIN_SIZE = 500
+CELL_SIZE = 20
+# Window height and width must be a multiple of the cell size
+assert WIN_SIZE % CELL_SIZE == 0
 
 # TODO: 1. Create a set of initial states with a simple pattern
 current_state = [0] * 400
-current_state[10] = 1
-current_state[30] = 1
-current_state[50] = 1
 future_state = []
 
 pygame.init()
@@ -49,25 +49,12 @@ while not done:
 
     # Here, we clear the screen to gray. Don't put other drawing commands
     # above this, or they will be erased with this command.
-    screen.fill(GRAY)
+    screen.fill(WHITE)
 
-    # --- Drawing code should go here
-    current_index = 0
-    x = 5
-
-    while x < 500:
-        y = 5
-        while y < 500:
-            # TODO: 2. Draw the current_state
-            state = current_state[current_index]
-            # TODO: 4. Draw based on values in future_state
-            if state == 0:
-                pygame.draw.rect(screen, BLACK, pygame.Rect(x, y, 20, 20))
-            else:
-                pygame.draw.rect(screen, WHITE, pygame.Rect(x, y, 20, 20))
-            current_index += 1
-            y += 25
-        x += 25
+    for x in range(0, WIN_SIZE, CELL_SIZE):  # draw vertical lines
+        pygame.draw.line(screen, GRAY, (x, 0), (x, WIN_SIZE))
+    for y in range(0, WIN_SIZE, CELL_SIZE):  # draw horizontal lines
+        pygame.draw.line(screen, GRAY, (0, y), (WIN_SIZE, y))
 
     # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
