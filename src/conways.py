@@ -6,8 +6,9 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (25, 25, 25)
 RED = (255, 0, 0)
-WIN_SIZE = 500
+WIN_SIZE = 400
 CELL_SIZE = 20
+FPS = 3
 # Window height and width must be a multiple of the cell size
 assert WIN_SIZE % CELL_SIZE == 0
 
@@ -47,6 +48,55 @@ def color(item, dict):
 
     return None
 
+# Each cell is surrounded by 8 other cells unless it is at the edge of the screen
+
+
+def find_neighbors(item, dict):
+    neighbors = 0
+
+    for x in range(-1, 2):
+        for y in range(-1, 2):
+            checked = (item[0] + x, item[1] + y)
+
+            if checked[0] < CELL_SIZE and checked[0] >= 0:
+                if checked[1] < CELL_SIZE and checked[1] >= 0:
+                    if dict[checked] == 1:
+                        if x == 0 and y == 0:  # the center cell
+                            neighbors += 0
+                        else:
+                            neighbors += 1
+
+    return neighbors
+
+# --- Game logic should go here
+
+# 1. Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+# 2. Any live cell with two or three live neighbours lives on to the next generation.
+# 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
+# 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+
+
+def tick(dict):
+    next_tick = {}
+
+    for item in dict:
+        neighbor_count = find_neighbors(item, dict)
+
+        if dict[item] == 1:  # if the cell is alive
+            if neighbor_count < 2:  # underpopulation
+                next_tick[item] = 0
+            elif neighbor_count > 3:
+                next_tick[item] = 0  # overpopulation
+            else:
+                next_tick[item] = 1  # stay alive
+        elif dict[item] == 0:  # if the cell is dead
+            if neighbor_count == 3:
+                next_tick[item] = 1  # reproduce
+            else:
+                next_tick[item] = 0  # stay dead
+
+    return next_tick
+
 
 def main():
     pygame.init()
@@ -58,6 +108,18 @@ def main():
 
     # Add a title
     pygame.display.set_caption("Conway's Game of Life")
+
+    # --- Screen-clearing code goes here
+
+    # Here, we clear the screen to gray. Don't put other drawing commands
+    # above this, or they will be erased with this command.
+    screen.fill(WHITE)
+
+    # Create a blank grid
+    game_of_life = blank_grid()
+
+    # Create random life in cells
+    game_of_life = random_grid(game_of_life)
 
     # Loop until the user clicks the close button.
     done = False
@@ -72,26 +134,8 @@ def main():
             if event.type == pygame.QUIT:
                 done = True
 
-        # --- Game logic should go here
-
-        # 1. Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-        # 2. Any live cell with two or three live neighbours lives on to the next generation.
-        # 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
-        # 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-
-        # TODO: 3. Work on rules that i) look at all neighbors, ii) save new state in future_state
-
-        # --- Screen-clearing code goes here
-
-        # Here, we clear the screen to gray. Don't put other drawing commands
-        # above this, or they will be erased with this command.
-        screen.fill(WHITE)
-
-        # Create a blank grid
-        game_of_life = blank_grid()
-
-        # Create random life in cells
-        game_of_life = random_grid(game_of_life)
+        # Run an iteration
+        game_of_life = tick(game_of_life)
 
         # Color the life cells
         for item in game_of_life:
@@ -104,7 +148,7 @@ def main():
         pygame.display.flip()
 
         # --- Limit to 5 frames per second
-        clock.tick(5)
+        clock.tick(FPS)
 
     # Close the window and quit.
     pygame.quit()
