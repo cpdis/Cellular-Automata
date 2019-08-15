@@ -106,9 +106,6 @@ def main():
     global screen
     screen = pygame.display.set_mode(size)
 
-    # Add a title
-    pygame.display.set_caption("Conway's Game of Life")
-
     # --- Screen-clearing code goes here
 
     # Here, we clear the screen to gray. Don't put other drawing commands
@@ -127,12 +124,19 @@ def main():
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
 
+    # Set the initial generation
+    generation = 0
+
     # -------- Main Program Loop -----------
     while not done:
         # --- Main event loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
+
+        # Add a title
+        pygame.display.set_caption(
+            "Conway's Game of Life (Generation #" + str(generation) + ")")
 
         # Run an iteration
         game_of_life = tick(game_of_life)
@@ -149,6 +153,7 @@ def main():
 
         # --- Limit to 5 frames per second
         clock.tick(FPS)
+        generation += 1
 
     # Close the window and quit.
     pygame.quit()
